@@ -24,7 +24,7 @@ export default Route.extend({
 			await recorder.record();
 
 			let { base64, audioURL, blob } = await recorder.getAudio();
-			console.log(base64, audioURL, blob);
+			console.log(audioURL, blob);
 		},
 
 		async play() {
