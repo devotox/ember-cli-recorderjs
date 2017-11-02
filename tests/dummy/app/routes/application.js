@@ -21,7 +21,10 @@ export default Route.extend({
 	actions: {
 		async record() {
 			let recorder = this.get('recorder');
-			recorder.record();
+			await recorder.record();
+
+			let { base64, audioURL, blob } = await recorder.getAudio();
+			console.log(audioURL, blob, base64); // eslint-disable-line
 		},
 
 		async play() {
