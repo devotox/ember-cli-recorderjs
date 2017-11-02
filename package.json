@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-recorderjs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Audio Recording for ember applications",
   "keywords": [
     "ember-addon",
