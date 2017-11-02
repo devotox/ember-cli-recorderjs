@@ -1,3 +1,15 @@
 <h2 id="title">Welcome to Ember</h2>
 
-{{outlet}}
+<div>
+	Recording
+	{{#if recorder.isRecording}}
+		Started!!
+	{{else}}
+		Stopped
+	{{/if}}
+</div>
+<br />
+
+<button {{action 'record'}}>Record</button>
+<button {{action 'play'}}>Play</button>
+<button {{action 'stop'}}>Stop</button>

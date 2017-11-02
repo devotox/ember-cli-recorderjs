@@ -1,26 +1,85 @@
 # ember-cli-recorderjs
 
-This README outlines the details of collaborating on this Ember addon.
+[![Ember Observer Score](http://emberobserver.com/badges/ember-cli-recorderjs.svg)](http://emberobserver.com/addons/ember-cli-recorderjs)
+[![Build Status](https://travis-ci.org/devotox/ember-cli-recorderjs.svg)](http://travis-ci.org/devotox/ember-cli-recorderjs)
+[![Coverage Status](https://codecov.io/gh/devotox/ember-cli-recorderjs/branch/master/graph/badge.svg)](https://codecov.io/gh/devotox/ember-cli-recorderjs)
+[![NPM Version](https://badge.fury.io/js/ember-cli-recorderjs.svg)](http://badge.fury.io/js/ember-cli-recorderjs)
+[![NPM Downloads](https://img.shields.io/npm/dm/ember-cli-recorderjs.svg)](https://www.npmjs.org/package/ember-cli-recorderjs)
+[![Dependency Status](https://david-dm.org/poetic/ember-cli-recorderjs.svg)](https://david-dm.org/poetic/ember-cli-recorderjs)
+[![DevDependency Status](https://david-dm.org/poetic/ember-cli-recorderjs/dev-status.svg)](https://david-dm.org/poetic/ember-cli-recorderjs#info=devDependencies)
+[![Greenkeeper](https://badges.greenkeeper.io/devotox/ember-cli-recorderjs.svg)](https://greenkeeper.io/)
+
+## Description
+Simple Wrapper around [Recorder JS](https://github.com/mattdiamond/Recorderjs).
+This provides a service that can be used to record / play audio and export do audio as a wav file / blob / base64
+
+[DEMO](http://devotox.github.io/ember-cli-recorderjs)
 
 ## Installation
+* `ember install ember-cli-recorderjs`
 
-* `git clone <repository-url>` this repository
-* `cd ember-cli-recorderjs`
-* `yarn install`
+## Usage
+### Options
+* recordingTime: (Default: 5000)
+	- Set how long recording should be before automatically stopping
+	- Note: If set to a falsey value you will need to call `recorder.stopRecording()` manually
+	- `recorder.set('recordingTime', <time in milliseconds>)`
 
-## Running
+```javascript
+import Route from '@ember/routing/route';
 
-* `ember serve`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
+import { inject } from '@ember/service';
 
-## Running Tests
+export default Route.extend({
 
-* `yarn test` (Runs `ember try:each` to test your addon against multiple Ember versions)
-* `ember test`
-* `ember test --server`
+	recorder: inject(),
 
-## Building
+	init() {
+		this._super(...arguments);
+		let recorder = this.get('recorder');
+		recorder.set('recordingTime', 5000);
+	},
 
-* `ember build`
+	setupController(controller) {
+		this._super(...arguments);
+		let recorder = this.get('recorder');
+		controller.set('recorder', recorder);
+	},
 
-For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
+	actions: {
+		async record() {
+			let recorder = this.get('recorder');
+			recorder.record();
+		},
+		async play() {
+			let recorder = this.get('recorder');
+			recorder.play();
+		},
+		async stop() {
+			let recorder = this.get('recorder');
+			recorder.stopRecording();
+			recorder.close();
+		}
+	}
+});
+```
+
+```handlebars
+<div>
+	Recording
+	{{#if recorder.isRecording}}
+		Started!!
+	{{else}}
+		Stopped
+	{{/if}}
+</div>
+<br />
+
+<button {{action 'record'}}>Record</button>
+<button {{action 'play'}}>Play</button>
+<button {{action 'stop'}}>Stop</button>
+```
+
+
+#### License
+MIT license.
