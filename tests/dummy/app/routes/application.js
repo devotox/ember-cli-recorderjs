@@ -21,10 +21,7 @@ export default Route.extend({
 	actions: {
 		async record() {
 			let recorder = this.get('recorder');
-			await recorder.record();
-
-			let { base64, audioURL, blob } = await recorder.getAudio();
-			console.log(audioURL, blob);
+			recorder.record();
 		},
 
 		async play() {
