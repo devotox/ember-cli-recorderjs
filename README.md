@@ -19,6 +19,8 @@ This provides a service that can be used to record / play audio and export do au
 * `ember install ember-cli-recorderjs`
 
 ## Usage
+* After running recorder.record()<Promise>, you can then run recorder.getAudio() to get the wav file created
+
 ### Options
 * recordingTime: (Default: 5000)
 	- Set how long recording should be before automatically stopping
@@ -49,7 +51,10 @@ export default Route.extend({
 	actions: {
 		async record() {
 			let recorder = this.get('recorder');
-			recorder.record();
+			await recorder.record();
+
+			let { base64, audioURL, blob } = await recorder.getAudio();
+			console.log(base64, audioURL, blob);
 		},
 		async play() {
 			let recorder = this.get('recorder');
@@ -79,7 +84,6 @@ export default Route.extend({
 <button {{action 'play'}}>Play</button>
 <button {{action 'stop'}}>Stop</button>
 ```
-
 
 #### License
 MIT license.
