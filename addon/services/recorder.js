@@ -1,22 +1,47 @@
-import Service, { inject } from '@ember/service';
-
-import { later, cancel } from '@ember/runloop';
+import $ from 'jquery';
 
 import Recorder from 'Recorder';
 
-import $ from 'jquery';
+import Service from '@ember/service';
+
+import { later, cancel } from '@ember/runloop';
 
 const {
+	URL,
+	Blob,
 	Promise,
 	navigator,
+	FileReader,
 	AudioContext
 } = window;
+
+
+const crypto = {
+	createURL(blob) {
+		return URL.createObjectURL(blob);
+	},
+	fromBlob(blob, type = 'text') {
+		let func = type === 'data' ? 'readAsDataURL' : 'readAsText';
+
+		return new Promise((resolve, reject) => {
+			let reader = new FileReader();
+
+			reader[func](blob);
+			reader.onerror = (error) => reject(error);
+			reader.onload = () => resolve(reader.result);
+		});
+	},
+	toBlob(dataURI) {
+		let { buffer, mimeString } = this.toArrayBuffer(dataURI);
+
+		// write the ArrayBuffer to a blob, and you're done
+		return new Blob([buffer], { type: mimeString });
+	}
+};
 
 export default Service.extend({
 
 	recorder: null,
-
-	crypto: inject(),
 
 	isRecording: false,
 
@@ -91,7 +116,6 @@ export default Service.extend({
 	},
 
 	async getAudio() {
-		let crypto = this.get('crypto');
 		let recorder = this.get('recorder');
 		if(!recorder) { throw new Error('Recorder not initialized'); }
 

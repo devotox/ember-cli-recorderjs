@@ -1,89 +1,50 @@
-# ember-cli-recorderjs
+ember-cli-recorderjs
+==============================================================================
 
-[![Ember Observer Score](http://emberobserver.com/badges/ember-cli-recorderjs.svg)](http://emberobserver.com/addons/ember-cli-recorderjs)
-[![Build Status](https://travis-ci.org/devotox/ember-cli-recorderjs.svg)](http://travis-ci.org/devotox/ember-cli-recorderjs)
-[![Coverage Status](https://codecov.io/gh/devotox/ember-cli-recorderjs/branch/master/graph/badge.svg)](https://codecov.io/gh/devotox/ember-cli-recorderjs)
-[![NPM Version](https://badge.fury.io/js/ember-cli-recorderjs.svg)](http://badge.fury.io/js/ember-cli-recorderjs)
-[![NPM Downloads](https://img.shields.io/npm/dm/ember-cli-recorderjs.svg)](https://www.npmjs.org/package/ember-cli-recorderjs)
-[![Dependency Status](https://david-dm.org/poetic/ember-cli-recorderjs.svg)](https://david-dm.org/poetic/ember-cli-recorderjs)
-[![DevDependency Status](https://david-dm.org/poetic/ember-cli-recorderjs/dev-status.svg)](https://david-dm.org/poetic/ember-cli-recorderjs#info=devDependencies)
-[![Greenkeeper](https://badges.greenkeeper.io/devotox/ember-cli-recorderjs.svg)](https://greenkeeper.io/)
+[Short description of the addon.]
 
-## Description
-Simple Wrapper around [Recorder JS](https://github.com/mattdiamond/Recorderjs).
-This provides a service that can be used to record / play audio and export do audio as a wav file / blob / base64
+Installation
+------------------------------------------------------------------------------
 
-[DEMO](http://devotox.github.io/ember-cli-recorderjs)
-
-## Installation
-* `ember install ember-cli-recorderjs`
-
-## Usage
-* After running `recorder.record()<Promise>` you can then run `recorder.getAudio()` to get the wav file created
-
-### Options
-* recordingTime: (Default: 5000)
-	- Set how long recording should be before automatically stopping
-	- Note: If set to a falsey value you will need to call `recorder.stopRecording()` manually
-	- `recorder.set('recordingTime', <time in milliseconds>)`
-
-```javascript
-import Route from '@ember/routing/route';
-
-import { inject } from '@ember/service';
-
-export default Route.extend({
-
-	recorder: inject(),
-
-	init() {
-		this._super(...arguments);
-		let recorder = this.get('recorder');
-		recorder.set('recordingTime', 5000);
-	},
-
-	setupController(controller) {
-		this._super(...arguments);
-		let recorder = this.get('recorder');
-		controller.set('recorder', recorder);
-	},
-
-	actions: {
-		async record() {
-			let recorder = this.get('recorder');
-			await recorder.record();
-
-			let { base64, audioURL, blob } = await recorder.getAudio();
-			console.log(base64, audioURL, blob);
-		},
-		async play() {
-			let recorder = this.get('recorder');
-			recorder.play();
-		},
-		async stop() {
-			let recorder = this.get('recorder');
-			recorder.stopRecording();
-			recorder.close();
-		}
-	}
-});
+```
+ember install ember-cli-recorderjs
 ```
 
-```handlebars
-<div>
-	Recording
-	{{#if recorder.isRecording}}
-		Started!!
-	{{else}}
-		Stopped
-	{{/if}}
-</div>
-<br />
 
-<button {{action 'record'}}>Record</button>
-<button {{action 'play'}}>Play</button>
-<button {{action 'stop'}}>Stop</button>
-```
+Usage
+------------------------------------------------------------------------------
 
-#### License
-MIT license.
+[Longer description of how to use the addon in apps.]
+
+
+Contributing
+------------------------------------------------------------------------------
+
+### Installation
+
+* `git clone <repository-url>`
+* `cd ember-cli-recorderjs`
+* `yarn install`
+
+### Linting
+
+* `yarn lint:js`
+* `yarn lint:js --fix`
+
+### Running tests
+
+* `ember test` – Runs the test suite on the current Ember version
+* `ember test --server` – Runs the test suite in "watch mode"
+* `ember try:each` – Runs the test suite against multiple Ember versions
+
+### Running the dummy application
+
+* `ember serve`
+* Visit the dummy application at [http://localhost:4200](http://localhost:4200).
+
+For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
+
+License
+------------------------------------------------------------------------------
+
+This project is licensed under the [MIT License](LICENSE.md).
