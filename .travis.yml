@@ -1,42 +1,75 @@
+---
 language: node_js
 node_js:
-- '6'
+  # we recommend testing addons with the same minimum supported node version as Ember CLI
+  # so that your addon works for all apps
+  - "6"
+
 sudo: false
 dist: trusty
+
 addons:
   chrome: stable
+
 cache:
   yarn: true
+
 env:
-  matrix:
-  - EMBER_TRY_SCENARIO=ember-lts-2.12
-  - EMBER_TRY_SCENARIO=ember-lts-2.16
-  - EMBER_TRY_SCENARIO=ember-lts-2.18
-  - EMBER_TRY_SCENARIO=ember-release
-  - EMBER_TRY_SCENARIO=ember-beta
-  - EMBER_TRY_SCENARIO=ember-canary
-  - EMBER_TRY_SCENARIO=ember-default
   global:
     # See https://git.io/vdao3 for details.
     JOBS: 1
     secure: fOTO/HpUT0xsfml9iXuEL9qBu0NVErcig6CmrS1DFv7f4x9/mYQMNzLUv5b6VBPqGHeFNHiGaUUza3Ufc5KpL7DOu/1y6TFQlSoM6MRRdIXb+50MObvkJ4wXwYJH7Zrb4g8RTaBOY9uU5XQkm/E6GWWF3NiYFoVzCYPNSgAALko1caoEX2hoJNXJSd0T4G+gxtxc2g08RGunBPLqIyy2avMRN4yq0WDN2NbBrztM01FA5RoOLPyX0hhzyIZ+45z34wKvZtu7rj9h1KbFOZOVFJWpHDa0bXxhF63ldxPINe2QMOSsOD22Czk1+IKyC+88gtkvUq7pGUaJK6YdVDRcW9G/DMHVy/IE2aFabrPDVgzrmeCoVKzATzt8nMfIMTTu9Unoa5fdohpJ0NPhYnPfVAGfJ+2MPITgP+x2X6M5+KgHCBdaIgwBVnZE9DTb1L9c/Eh50zeHHbfv9L+NVlbQFzMWNj+kKWMj0qwh6JPpSFiKaOvTK6XP+NSUc7euAZgqK6lwqS07pvcql4qvzbeRWyn/GZuRHOGvfkUNuvLee8dMKfpF3s1VQ6blHHqKB8qH2ifxawiztWgUkYxK0GFTk//ZopLzP90bLl0JiGlg517tp5V9eBOK5ZlPwsSOhD+wta9gCssPjK4i2H2IwLox7AqXegigBMdqIbXz9LaFVAY=
-matrix:
-  fast_finish: true
+
+branches:
+  only:
+    - master
+    # npm version tags
+    - /^v\d+\.\d+\.\d+/
+
+jobs:
+  fail_fast: true
   allow_failures:
-  - env: EMBER_TRY_SCENARIO=ember-canary
+    - env: EMBER_TRY_SCENARIO=ember-canary
+
+  include:
+    # runs linting and tests with current locked deps
+
+    - stage: "Tests"
+      name: "Tests"
+      install:
+        - yarn install --non-interactive
+      script:
+        - yarn lint:hbs
+        - yarn lint:js
+        - COVERAGE=true yarn test
+        - codecov
+
+    # - name: "Floating Dependencies"
+    #   script:
+    #     - yarn test
+
+    # we recommend new addons test the current and previous LTS
+    # as well as latest stable release (bonus points to beta/canary)
+    - stage: "Additional Tests"
+      env: EMBER_TRY_SCENARIO=ember-lts-2.18
+    - env: EMBER_TRY_SCENARIO=ember-lts-3.4
+    - env: EMBER_TRY_SCENARIO=ember-release
+    - env: EMBER_TRY_SCENARIO=ember-beta
+    - env: EMBER_TRY_SCENARIO=ember-canary
+    - env: EMBER_TRY_SCENARIO=ember-default-with-jquery
+
 before_install:
-- curl -o- -L https://yarnpkg.com/install.sh | bash
-- export PATH=$HOME/.yarn/bin:$PATH
-- yarn global add greenkeeper-lockfile@1
-- yarn global add codecov
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
+  - export PATH=$HOME/.yarn/bin:$PATH
+  - yarn global add greenkeeper-lockfile@1
+  - yarn global add codecov
+
 install:
-- yarn install --no-lockfile --non-interactive
-before_script: greenkeeper-lockfile-update
-after_script: greenkeeper-lockfile-upload
+  - yarn install --no-lockfile --non-interactive
+
 script:
-- yarn lint:js
-- COVERAGE=true node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO --skip-cleanup
-- codecov
+  - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO
+
 notifications:
   webhooks:
     urls:
@@ -49,3 +82,13 @@ notifications:
   slack:
     rooms:
       secure: 2ci1sXjw4dVtTr/3Rsv5Gr1e0KQdMumhQRw8BMEN1qOs6s4LP8zy2CDOQOLJytK90t91EIkrduWuYt2RnuVHyrNt95AhRNVgdyjTLesmpxHK8k2FcM8T3aHaE7t1p/vZdhrslzWfbEzHTa5DbRLuRjMLt5FIyFWPuBi84LeE35sDJbhXovAHmw6SmX9s+N6vhWD+yIsj+A1DAGE+krcgfTepmMxikVKp3yObK3G2qvPDQv76Z/7XYHJ+oKNkZ0FNK8jVYtqEdLp4w2G1Mg1Os4BZl5zp5VwVekNJ7auFrppiJDSF1Dmur2v+a+dSc3j6pakSHmW3yyml49cfSlTSqdBdvu0f112xiNiLEUDK94G/h+3bSZwsK90A8D+JK+cFFSFfq37qT5wLYI1kYKjEayfdFl73qfocS0mWdGqtwEgnCUGQZKLDdsIttv17WUQjpMHtlt6wKSdMM4ZBd32vkJAubhqiKhQlSYjzUz3Jq0fsXscu9Jpssjaq5cdQqfx/bL00FM5v/ke69Nc+Vjc8SluvF9LR9XOvvspYUw9ojGV8tJBFM93PfUKZKfC5XpHTubQClO/xChZ9oZndITtFeW8Ffjt8J2myRlU5e2tUO3O1PnnHBuo/6MNoltY3nBDVj9xt0Y9AFDsrcP0hJdPjdANdpfR11BpzN3kPcPSBACE=
+
+deploy:
+  provider: npm
+  skip_cleanup: true
+  email: devo.tox.89@gmail.com
+  api_key:
+    secure: kTq05EXB1X88qfMvxAJ47nDIZhVJOo9R1gM3MoBEqhh4JXP60PJjjqIkX1UOhBIwjvmgqEWcO+11kiEOczjjLkd/hW2ODwFIacp7t+49VKxTmQfD55qYlLPGwpttJjWKa7KZShONt4yPK0BQQ9s78Xtpk6K22qf3MV8tdCiu5J/QTJHpBX9DOmh+QI5vz4I4Fah3v0pkzba8FJltiF1a9vWkMee2hb45MkXKZLIpafr/hGhW+3qH/7LCgzs2C5+LsDq5Pv3S5W4i0kRCjgeslaNDTzfwKtTC65xqJ6PzkvyWUPRCOADhkHNPxLH8Fu+AO4ao0f/e60OwRqFdMDsoAQTWGubaLKeQvFfI+/F650GNOWgUOxzETMl3WNNmWbw+A1iFW6rUjTrB/XqV+V6k2Et7O3E/UeZmH71MLEMEmu7DwoyHfRQDxqsZn38/bSmMtzCuolRCPJ1TKWAGs8f4uI3nXuimLhBTUmjiwX/Gw33mhW9I66nc12OFqPnw0kR6pkod8/wZx2RE76Sqav/AEVHL2fsHoZZ+NfOE6DXmyWV8d7ed5L4a/bCJ5jN3u6/pR3eIOPnAwqHI2aQaqke1KTDfleROZ4aAkapr/AiSZJrq40dMYJtMIcQqoYpnh1gKQEc9dyHJMgTh61izCyH5+gFemciGyH9XVXBrAl7hVuU=
+  on:
+    tags: true
+    repo: devotox/ember-cli-recorderjs

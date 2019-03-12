@@ -1,20 +1,14 @@
 'use strict';
 
+const { name } = require('./package');
+
 module.exports = {
-    name: 'ember-cli-recorderjs',
+  name,
+  
+  included() {
+    this._super.included.apply(this, arguments);
 
-    options: {
-		'ember-cli-babel': {
-			compileModules: true,
-			includePolyfill: true,
-			disableDebugTooling: true
-		}
-    },
-
-    included() {
-        this._super.included.apply(this, arguments);
-
-        this.import('vendor/recorder.js');
-        this.import('vendor/shims/recorder.js');
-    }
+    this.import('vendor/recorder.js');
+    this.import('vendor/shims/recorder.js');
+  }
 };

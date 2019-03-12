@@ -1,5 +1,3 @@
-import $ from 'jquery';
-
 import Recorder from 'Recorder';
 
 import Service from '@ember/service';
@@ -51,6 +49,10 @@ export default Service.extend({
 
 	recordingTime: 5000,
 
+	audioElementType: 'audio/wav',
+
+	audioElementID: 'audio-playback',
+
 	init() {
 		this._super(...arguments);
 		return this.setup();
@@ -61,13 +63,8 @@ export default Service.extend({
 		let audioContext = this.get('audioContext');
 
 		return audioContext && recorder
-			|| await new Promise((resolve, reject) => {
-			return navigator.getUserMedia ? navigator.getUserMedia(
-				{ audio: true },
-				(stream) => { resolve(this.createNewRecorder(stream)); },
-				function(e) { reject(e); }
-			) : reject(new Error('No Get User Media API available.'));
-		});
+			|| navigator.mediaDevices.getUserMedia({ audio: true })
+				.then((stream) => { this.createNewRecorder(stream) });
 	},
 
 	async createNewRecorder(stream) {
@@ -80,37 +77,38 @@ export default Service.extend({
 		return recorder;
 	},
 
-	async stopRecording() {
-		let recorder = this.get('recorder');
-		this.set('rejectPromise', null);
-		this.set('audioTimeout', null);
-		this.set('isRecording', false);
-		recorder.stop();
+	async stop() {
+		if(!this.get('isRecording')) { return; }
+
+		let audioTimeout = this.get('audioTimeout');
+		let resolvePromise = this.get('resolvePromise');
+
+		resolvePromise && resolvePromise();
+		audioTimeout && cancel(audioTimeout);
+
+		this.resetRecorder();
 	},
 
-	async startRecording() {
-		let recorder = this.get('recorder');
-		this.set('isRecording', true);
-		recorder.record();
-	},
-
-	async record() {
-		this.reset();
-
+	async start() {
 		try {
+			await this.reset();
 			await this.setup();
 		} catch(e) {
 			throw e;
 		}
 
 		let recordingTime = this.get('recordingTime');
-		this.startRecording();
+		let recorder = this.get('recorder');
+		this.set('isRecording', true);
+		recorder.record();
 
 		return recordingTime
 			&& new Promise((resolve, reject) => {
-				let finish = () => resolve(this.stopRecording());
-				let audioTimeout = later((finish), recordingTime);
+				let finish = () => resolve(this.stop());
+				let audioTimeout = later(finish, recordingTime);
+
 				this.set('audioTimeout', audioTimeout);
+				this.set('resolvePromise', resolve);
 				this.set('rejectPromise', reject);
 			});
 	},
@@ -131,38 +129,66 @@ export default Service.extend({
 	},
 
 	async play() {
+		this.removeAudioElement();
+
 		let { audioURL } = await this.getAudio();
 
-		$('#audio-playback').remove();
-		let $audio = $('<audio/>', { id: 'audio-playback', autoplay: true });
-		let $source = $('<source/>', { type: 'audio/wav' });
+		let $audio = document.createElement('audio');
+		let $source = document.createElement('source');
 
-		$source.attr('src', audioURL);
-		$audio.append($source).appendTo('body');
-		$audio.bind('ended', () => $audio.remove());
+		$source.src = audioURL;
+		$source.type = this.audioElementType;
+
+		$audio.autoplay = true;
+		$audio.id = this.audioElementID;
+		$audio.addEventListener('ended', this.removeAudioElement.bind(this));
+
+		$audio.appendChild($source);
+		document.body.appendChild($audio);
 	},
 
+
 	async reset() {
-		this.clear();
-		$('#audio-playback').remove();
-		this.set('isRecording', false);
+		this.removeAudioElement();
 
 		let audioTimeout = this.get('audioTimeout');
 		let rejectPromise = this.get('rejectPromise');
 
 		audioTimeout && cancel(audioTimeout);
 		rejectPromise && rejectPromise(new Error('Recorder Reset'));
-	},
 
-	async clear() {
-		let recorder = this.get('recorder');
-		recorder && recorder.clear();
-		recorder && recorder.stop();
+		this.resetRecorder();
+		this.clear();
 	},
 
 	async close() {
 		let audioContext = this.get('audioContext');
 		audioContext && await audioContext.close();
 		this.set('audioContext', null);
+	},
+
+	removeAudioElement() {
+		let $audio = document.getElementById(this.audioElementID);
+		if (!$audio) { return; }
+
+		$audio.removeEventListener('ended', this.removeAudioElement.bind(this));
+		$audio.parentElement.removeChild($audio);
+	},
+
+	resetRecorder() {
+		this.set('isRecording', false);
+		this.set('audioTimeout', null);
+		this.set('rejectPromise', null);
+		this.set('resolvePromise', null);
+
+		let recorder = this.get('recorder');
+		recorder && recorder.stop();
+	},
+
+
+	clear() {
+		let recorder = this.get('recorder');
+		recorder && recorder.clear();
+		recorder && recorder.stop();
 	}
 });
