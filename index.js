@@ -4,7 +4,6 @@ const { name } = require('./package');
 
 module.exports = {
   name,
-  
   included() {
     this._super.included.apply(this, arguments);
 
