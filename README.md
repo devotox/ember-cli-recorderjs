@@ -59,7 +59,7 @@ export default Route.extend({
 	actions: {
 		async record() {
 			let recorder = this.get('recorder');
-			await recorder.record();
+			await recorder.start();
 
 			let { base64, audioURL, blob } = await recorder.getAudio();
 			console.log(base64, audioURL, blob);
@@ -70,8 +70,8 @@ export default Route.extend({
 		},
 		async stop() {
 			let recorder = this.get('recorder');
-			recorder.stopRecording();
-			recorder.close();
+			recorder.stop();
+			recorder.close(); // Cloase audio context
 		}
 	}
 });
