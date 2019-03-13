@@ -27,7 +27,7 @@ ember install ember-cli-recorderjs
 Usage
 ------------------------------------------------------------------------------
 
-* After running `recorder.record()<Promise>` you can then run `recorder.getAudio()` to get the wav file created
+* After running `recorder.start()<Promise>` you can then run `recorder.getAudio()` to get the wav file created
 
 ### Options
 * recordingTime: (Default: 5000)
