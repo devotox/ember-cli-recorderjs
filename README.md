@@ -3,8 +3,8 @@
 [![Coverage Status](https://codecov.io/gh/devotox/ember-cli-recorderjs/branch/master/graph/badge.svg)](https://codecov.io/gh/devotox/ember-cli-recorderjs)
 [![NPM Version](https://badge.fury.io/js/ember-cli-recorderjs.svg)](http://badge.fury.io/js/ember-cli-recorderjs)
 [![NPM Downloads](https://img.shields.io/npm/dm/ember-cli-recorderjs.svg)](https://www.npmjs.org/package/ember-cli-recorderjs)
-[![Dependency Status](https://david-dm.org/poetic/ember-cli-recorderjs.svg)](https://david-dm.org/poetic/ember-cli-recorderjs)
-[![DevDependency Status](https://david-dm.org/poetic/ember-cli-recorderjs/dev-status.svg)](https://david-dm.org/poetic/ember-cli-recorderjs#info=devDependencies)
+[![Dependency Status](https://david-dm.org/devotox/ember-cli-recorderjs.svg)](https://david-dm.org/devotox/ember-cli-recorderjs)
+[![DevDependency Status](https://david-dm.org/devotox/ember-cli-recorderjs/dev-status.svg)](https://david-dm.org/devotox/ember-cli-recorderjs#info=devDependencies)
 [![Greenkeeper](https://badges.greenkeeper.io/devotox/ember-cli-recorderjs.svg)](https://greenkeeper.io/)
 
 ember-cli-recorderjs
@@ -14,7 +14,7 @@ Simple Wrapper around [Recorder JS](https://github.com/mattdiamond/Recorderjs).
 
 This provides a service that can be used to record, play, and export audio as a wav file, blob, or bas64 string.
 
-[DEMO](http://devotox.github.io/ember-cli-recorderjs)
+[DEMO](https://devotox.github.io/ember-cli-recorderjs)
 
 Installation
 ------------------------------------------------------------------------------
